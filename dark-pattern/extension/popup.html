@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dark Pattern Detector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 380px;
+      min-height: 200px;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0D1117;
+      color: #F1F5F9;
+    }
+
+    /* Header */
+    .header {
+      background: #1F3864;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 3px solid #E63946;
+    }
+    .header h1 { font-size: 15px; font-weight: 700; }
+    .header p  { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+    .shield { font-size: 22px; }
+
+    /* Controls */
+    .controls {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid #1E293B;
+    }
+    .btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: #E63946; color: white; }
+    .btn-secondary { background: #1E293B; color: #94A3B8; font-size: 12px; }
+
+    /* Toggle */
+    .toggle-row {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748B;
+      border-bottom: 1px solid #1E293B;
+    }
+    .toggle-row input[type="checkbox"] { accent-color: #E63946; }
+
+    /* Status */
+    .status {
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #64748B;
+      min-height: 36px;
+    }
+    .status.scanning { color: #F4A261; }
+    .status.error    { color: #E63946; }
+
+    /* Summary badges */
+    .summary {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+    }
+    .badge {
+      flex: 1;
+      text-align: center;
+      padding: 10px 6px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+    .badge .count { font-size: 22px; display: block; }
+    .badge .label { font-size: 10px; opacity: 0.8; }
+    .badge-high   { background: rgba(230,57,70,0.15);  color: #E63946; }
+    .badge-medium { background: rgba(244,162,97,0.15); color: #F4A261; }
+    .badge-low    { background: rgba(42,157,143,0.15); color: #2A9D8F; }
+
+    /* Pattern list */
+    .results { max-height: 320px; overflow-y: auto; }
+    .pattern-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid #1E293B;
+      cursor: pointer;
+    }
+    .pattern-item:hover { background: #1E293B; }
+    .pattern-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .pattern-name { font-size: 13px; font-weight: 600; }
+    .sev-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+    }
+    .sev-high   { background: rgba(230,57,70,0.2);  color: #E63946; }
+    .sev-medium { background: rgba(244,162,97,0.2); color: #F4A261; }
+    .sev-low    { background: rgba(42,157,143,0.2); color: #2A9D8F; }
+    .pattern-cat  { font-size: 11px; color: #475569; margin-bottom: 4px; }
+    .pattern-exp  { font-size: 11px; color: #94A3B8; line-height: 1.4; }
+    .pattern-match {
+      font-size: 10px;
+      color: #334155;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .source-badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #1E293B;
+      color: #64748B;
+      margin-left: 4px;
+    }
+
+    /* Empty state */
+    .empty {
+      padding: 30px 16px;
+      text-align: center;
+      color: #475569;
+    }
+    .empty .icon { font-size: 32px; margin-bottom: 8px; }
+    .empty p { font-size: 13px; }
+
+    /* Footer */
+    .footer {
+      padding: 8px 16px;
+      font-size: 10px;
+      color: #334155;
+      border-top: 1px solid #1E293B;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <span class="shield">🛡️</span>
+    <div>
+      <h1>Dark Pattern Detector</h1>
+      <p>Identifies manipulative UI techniques in real time</p>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-primary" id="scanBtn">🔍 Scan This Page</button>
+    <button class="btn btn-secondary" id="clearBtn">✕ Clear</button>
+  </div>
+
+
+  <!-- Status line -->
+  <div class="status" id="status">Click "Scan This Page" to begin analysis.</div>
+
+  <!-- Summary badges (hidden until scan) -->
+  <div class="summary" id="summary" style="display:none">
+    <div class="badge badge-high">
+      <span class="count" id="highCount">0</span>
+      <span class="label">HIGH</span>
+    </div>
+    <div class="badge badge-medium">
+      <span class="count" id="medCount">0</span>
+      <span class="label">MEDIUM</span>
+    </div>
+    <div class="badge badge-low">
+      <span class="count" id="lowCount">0</span>
+      <span class="label">LOW</span>
+    </div>
+  </div>
+
+  <!-- Results list -->
+  <div class="results" id="results"></div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Based on Gray et al. (CHI 2024) Taxonomy</span>
+    <span id="urlDisplay"></span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

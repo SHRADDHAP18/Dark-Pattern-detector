@@ -1,0 +1,23 @@
+/* Highlighted elements on the webpage */
+.dpd-highlight {
+  outline: 2px solid orange !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+  cursor: help !important;
+  position: relative !important;
+}
+
+.dpd-high {
+  outline-color: #E63946 !important;
+  background-color: rgba(230, 57, 70, 0.08) !important;
+}
+
+.dpd-medium {
+  outline-color: #F4A261 !important;
+  background-color: rgba(244, 162, 97, 0.08) !important;
+}
+
+.dpd-low {
+  outline-color: #2A9D8F !important;
+  background-color: rgba(42, 157, 143, 0.08) !important;
+}
